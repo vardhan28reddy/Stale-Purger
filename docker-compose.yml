@@ -1,0 +1,22 @@
+services:
+  pg:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: "stale-purger"
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-stale-purger:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: stale-pods-info
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - kind
+
+volumes:
+  postgres-stale-purger:
+
+networks:
+  kind:
+    external: true

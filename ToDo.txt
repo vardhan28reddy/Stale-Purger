@@ -1,0 +1,48 @@
+1. Establish connection with Cluster
+    - Handle when we deploy in Cluster - Done
+    - We should be handling using kubeConfig in local - Done
+    - Handle if a Service account is passed
+    - Recursively find the top ownerReference of the pod
+2. Implement a logic to find the stale pods across namespaces - Done
+3. Purge them through concurrently. - Giving client-side throttling error due to many request to API server.
+4. Generate a report having a data of stale pods. - Done
+5. Controller:
+    - GraphQL
+    - Purger
+6. APIs:
+    Query:
+        - To share information of current stale pods if namespace is provided.
+        - If time duration in hours is given then count of stale deleted pods.
+        - Given a pod name, provide a reason for deletion of it.
+        - Summary of deleted stale pods by seggregating based on reason of being stale.
+        - seggregate stale pod info based on Nodes
+        - Stale pods that can't be deleted because state is not being stable.
+    Mutation:
+        - User creation
+        - JWT token
+7. Establish connection with Postgres and store information
+    Schema:
+        ┌────────────────────────────┐
+        │       deleted_pods         │
+        ├────────────────────────────┤
+        │ id              UUID (PK)  │
+        │ pod_name        TEXT       │
+        │ namespace       TEXT       │
+        │ node_name       TEXT       │
+        | owner_name      TEXT       |
+        │ deleted_at      TIMESTAMPTZ│
+        | action_type     TEXT       |
+        │ deletion_reason TEXT       │
+        │ status          TEXT       │
+        │ pod_agew        INT        │
+        └────────────────────────────┘
+
+8. Optional: Use a Queue (like Redis or Kafka)
+    If the deletion happens at high volume, or you don’t want DB inserts to block pod deletion, consider pushing deletion events to a message queue, and having a separate worker persist them.
+    This decouples your logic and can scale better.
+
+9. Controllers
+    - GraphQl Controller
+    - Purger Controller
+
+10. I have two containers in a pod, what if one container goes down then entire pod will go down right? No, The container will keep running
